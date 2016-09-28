@@ -1,0 +1,37 @@
+System.out.println("teacher said"java is fun"")
+转义：System.out.println("teacher said\"java is fun\"");
+
+知乎专栏：
+ObjectAnimator.ofFloat
+
+//overlay空白图
+Bitmap overlay = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+Canvas canvas = new Canvas(overlay);
+canvas.translate(-view.getLeft(), -view.getTop());
+//下面这句代码执行完后，overlay成为和bkg一样的位图 
+canvas.drawBitmap(bkg, 0, 0, null);
+
+RenderScript rs = RenderScript.create(this);
+Allocation allocation = Allocation.createFromBitmap(rs, overlay);
+ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, allocation.getElement());
+
+blur.setInput(allocation);
+blur.setRadius(radius);
+blur.forEach(allocation);
+allocation.copyTo(overlay);
+view.setBackground(new BitmapDrawable(getResources(), overlay));
+
+
+Canvas两种方法获取
+①View.onDraw方法,效果直接反映在view中
+②new
+	
+	Bitmap b = Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888);  //b此时为空白的Bitmap
+	Canvas canvas = new Canvas(b);   效果反应在b中
+	
+	我们可以在b中画一个存在bitmap
+	canvas.drawBitmap(bitmap,0,0,paint);
+	
+	这样b就被画成了和bitmap一样，相当于复制了存在的bitmap，我们可以拿着b去使用了,
+	//(b本身也是Bitmap)
+	iv.setImageBitmap(b);
