@@ -40,3 +40,73 @@ Canvas两种方法获取
 View的刷新
    (主线程调用)invalidate-->draw--->onDraw方法
    (子线程调用)postInvalidate
+   
+/*....................................................*/  
+自定义进度条  ProgresButton extends Button
+	setProgress(int progress){
+		this.mProgress = progress;
+		invalidate();
+	}
+	protected void onDraw(Canvas canvas) {
+		if (mProgressEnable) {
+			Drawable drawable = new ColorDrawable(Color.BLUE);
+			int left = 0;
+			int top = 0;
+			int right = (int) (mProgress * 1.0f / mMax * getMeasuredWidth() + .5f);  //right会一直在变
+			int bottom = getBottom();
+			drawable.setBounds(left, top, right, bottom);// 必须的.告知绘制的范围
+			drawable.draw(canvas);
+		}
+		super.onDraw(canvas);// 绘制内容
+	}
+	
+/*....................................................*/  
+自定义圆形进度条  CircleProgressView extends LinearLayout
+	public CircleProgressView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		View view = View.inflate(getContext(), R.layout.circleprogress_root_view, this);
+		mIvIcon = (ImageView) view.findViewById(R.id.circleProgressView_iv_icon);   圆形图片    图片是圆形的，但是view是矩形
+		mTvNote = (TextView) view.findViewById(R.id.circleProgressView_tv_note);	文字“下载”	
+	}
+	
+	protected void dispatchDraw(Canvas canvas) {
+	
+		super.dispatchDraw(canvas);  // 绘制具体的内容(图片和文字)
+		
+		if (mProgressEnable) {
+			RectF oval = new RectF(mIvIcon.getLeft(), mIvIcon.getTop(), mIvIcon.getRight(), mIvIcon.getBottom());//矩形框			
+			float startAngle = -90;
+			float sweepAngle = mProgress*360.f/mMax;
+			boolean useCenter = false;			
+			Paint paint = new Paint();
+			paint.setColor(Color.BLUE);
+			paint.setAntiAlias(true);
+			paint.setStyle(Style.STROKE);
+			paint.setStrokeWidth(UIUtils.dip2Px(3));			
+			canvas.drawArc(oval, startAngle, sweepAngle, useCenter, paint);  //在矩形框内画圆弧
+		}			
+	}
+	
+onDraw方法和dispatchDraw的区别
+绘制VIew本身的内容，通过调用View.onDraw(canvas)函数实现
+绘制自己的孩子通过dispatchDraw（canvas）实现
+
+View组件的绘制会调用draw(Canvas canvas)方法，draw过程中主要是先画Drawable背景，
+对drawable调用setBounds(),然后是draw(Canvas c)方法。
+有点注意的是背景drawable的实际大小会影响view组件的大小，
+drawable的实际大小通过 getIntrinsicWidth()和getIntrinsicHeight()获取，
+当背景比较大时view组件大小等于背景drawable的大小。
+画完背景后，draw过程会调用onDraw(Canvas canvas)方法，然后就是dispatchDraw(Canvas canvas)方法，dispatchDraw()主要是分发给子组件进行绘制，
+我们通常定制组件的时候重写的是onDraw()方法。                    ------------------------>view走draw方法
+
+值得注意的是ViewGroup容器组件的绘制，
+当它没有背景时直接调用的是dispatchDraw()方法,而绕过了draw()方法,------------------------>个人理解:没背景时没必要走draw方法
+当它有背景的时候就调用draw()方法，而draw()方法里包含了dispatchDraw()方法的调用。-------->有背景时我们才走draw方法
+因此要在ViewGroup上绘制东西的时候往往重写的是dispatchDraw()方法而不是onDraw()方法，
+
+或者自定制一个Drawable，重写它的draw(Canvas c)和 getIntrinsicWidth()，getIntrinsicHeight()方法，然后设为背景。
+
+View的draw方法源码
+	绘制背景                  Step 1, draw the background, if needed
+	调用onDraw()方法          Step 3, draw the content
+	调用dispatchDraw()方法    Step 4, draw the children  只有ViewGroup才实现了这个方法,view只是个空实现
