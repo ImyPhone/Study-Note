@@ -35,3 +35,8 @@ Canvas两种方法获取
 	这样b就被画成了和bitmap一样，相当于复制了存在的bitmap，我们可以拿着b去使用了,
 	//(b本身也是Bitmap)
 	iv.setImageBitmap(b);
+	
+	
+View的刷新
+   (主线程调用)invalidate-->draw--->onDraw方法
+   (子线程调用)postInvalidate
