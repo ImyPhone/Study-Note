@@ -1,0 +1,85 @@
+集合知识
+|------Collection
+	   |------List:ArrayList LinkedList Vector  有序 重复    判断元素是否相同用的是元素的equals方法  
+	   |------Set  无序 不重复  
+			  |------HashSet  hashCode和equals方法
+			  |------TreeSet(排序)  compareTo方法           
+|------Map
+	   |------HashMap:
+	   |------TreeMap:
+
+	元素实现Comparable接口，复写compareTo方法,就有可比性啦...(形容词...able,元素)
+	Student implements Comparable{
+		public int compareTo(Object obj){
+			if(!(obj instanceof Student){
+				throw new RuntimeException("不是学生对象");
+			}
+			Student s = (Student)obj;
+			if(this.age > s.age){
+				return 1;
+			}else if(){
+				return -1;
+			}else{
+				return 0;
+			}
+		}
+	}
+	
+	当元素自身不具备比较性时或者具备的比较性不是我们需要的，这是让集合容器具备比较性  (比较器...tor,集合)
+	初始化容器时传入比较器对象：定义一个实现Comparator的子类对象，覆盖compare方法
+	class MyComparator implements Comparator{
+		public int compare(Object o1, Object o2){
+			Student s1 = (Student)o1;
+			Student s2 = (Student)o2;
+			int num = s1.getName().compareTo(s2.getName());
+			if(s1.getAge() > s2.getAge()){
+				return 1;
+			}if(s1.getAge() < s2.getAge()){
+				return -1;
+			}
+			return num;
+		}
+	}
+	
+	class TreeDemo{
+		public static void main(String[] args){
+			TreeSet set = new TreeSet(new MyComparator());
+			......
+		}
+	}
+	
+	
+Map集合取出元素的两种方式
+	①把所有的键取出来到set集合,再去迭代
+	Set<String> keySet = map.keySet();
+	Iterator<String> it = keySet.iterator();
+	while(it.hasNext()){
+		String key = it.next();
+		String value = map.get(key);
+	}
+	
+	②把映射取出来到set集合,再去迭代
+	Set<Map.Entry<String, String>> entrySet = map.entrySet();
+	Iterator<Map.Entry<String, String>> it = entrySet.iterator();
+	while(it.hasNext()){
+		Map.Entry<String, String> me = it.next();
+		String key = me.getKey();
+		String value = me.getValue();
+	}
+	
+	
+Date date = new Date();
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日");
+String time = sdf.format(date);
+	
+常见的线程池
+ScheduledExecutorService service = Executors.newScheduledThreadPool(2);
+ExecutorService service1 = Executors.newFixedThreadPool(2);
+ExecutorService service2 = Executors.newCachedThreadPool();
+ScheduledExecutorService service3 = Executors.newScheduledThreadPool(2);
+
+service.execute(new Runnable() {
+	public void run() {
+	
+	}
+});	
