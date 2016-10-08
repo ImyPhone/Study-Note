@@ -1,0 +1,54 @@
+一：补间动画Tween 平移 （translate）,缩放（scale）,透明（alpha）,和旋转（roatate）
+	
+
+二：属性动画
+	ObjectAnimator.ofFloat(mIvArrow, "rotation", 0, 180).start();
+	
+	//mContainerDes.setHeiht没有此方法（没height属性） 所以只能new ValueAnimator()
+	ValueAnimator animator = ValueAnimator.ofInt(start,end); //生成start到end的渐变值
+	animator.setDuration(300);
+	animator.start();
+	animator.addUpdateListener(new AnimatorUpdateListener() {
+		
+		@Override
+		public void onAnimationUpdate(ValueAnimator value) {
+			int height = (Integer) value.getAnimatedValue();
+			//修改高度
+			LayoutParams params = mContainerDes.getLayoutParams();
+			params.height = height;
+			mContainerDes.setLayoutParams(params);
+		}
+		});
+
+三：帧动画FrameAnimation   多张图片快速切换，形成动画效果
+	①首先在res/anim（或者res/drawable）下建立一个frame.xml来存放帧动画
+	②<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+			android:oneshot="true">  //         oneshot（只启动一次）  为true 表示只播放一次，false为循环播放。
+		<item android:drawable="@drawable/g1" android:duration="200" />
+		<item android:drawable="@drawable/g2" android:duration="200" />
+	  </animation-list>
+	③ImageView  iv = (ImageView) findViewById(R.id.iv);
+      iv.setBackgroundResource(R.drawable.frameanimation);
+      AnimationDrawable  anim = (AnimationDrawable) iv.getBackground();
+      anim.start();
+	  
+	  
+	//完全编码实现的动画效果
+    AnimationDrawable anim = new AnimationDrawable();
+    for (int i = 1; i <= 4; i++) {
+      //根据资源名称和目录获取R.java中对应的资源ID
+      int id = getResources().getIdentifier("f" + i, "drawable", getPackageName());//第一个参数 资源名称 资源类型 包名
+      //根据资源ID获取到Drawable对象
+      Drawable drawable = getResources().getDrawable(id);
+      //将此帧添加到AnimationDrawable中
+      anim.addFrame(drawable, 300);
+    }
+    anim.setOneShot(false); //设置为loop
+    image.setBackgroundDrawable(anim); //将动画设置为ImageView背景
+    anim.start();  //开始动画
+	
+	
+	注意ad.start()的调用时机 直接在onCrete方法上调用看不到效果,在onWindowFocusChanged调用就可以
+	因为窗口Window对象还没有完全初始化，AnimationDrawable不能完全追加到窗口Window对象中
+	我们一般可以通过button开关去控制ad.start() ad.isRunning() ad.stop()
+	
