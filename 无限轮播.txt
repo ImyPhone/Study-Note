@@ -1,0 +1,20 @@
+class LunBoTask extends Handler implements Runnable {
+
+	public void stopLunbo() {
+		// 移除当前所有的任务
+		removeCallbacksAndMessages(null);
+	}
+
+	public void startLunbo() {
+		stopLunbo();
+		postDelayed(this, 2000);
+	}
+
+	@Override
+	public void run() {
+		vp_lunbo.setCurrentItem((vp_lunbo.getCurrentItem() + 1)
+				% vp_lunbo.getAdapter().getCount());
+		postDelayed(this, 2000);
+	}
+
+}

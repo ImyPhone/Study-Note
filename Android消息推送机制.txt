@@ -1,0 +1,5 @@
+Pull和Push
+A、C2DM云端推送方案
+B、MQTT协议实现Android推送
+C、RSMB实现推送功能
+D、XMPP协议实现Android推送

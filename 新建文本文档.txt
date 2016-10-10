@@ -1,0 +1,21 @@
+﻿职业技能：
+熟练使用Eclipse、Android Studio开发工具,熟悉git、SVN等版本控制。
+熟练使用ListView、ViewPager、Fragment来展示界面。
+熟悉Android手机屏幕适配及屏幕适配的原则，提高应用的兼容性。
+熟悉View的绘制流程，能够写出自定义控件满足需求。
+熟悉Android补间动画、帧动画、属性动画，能够在项目中熟练使用。
+熟练使用Json的源生解析和使用Gson开源项目解析。
+熟悉Java常见的设计模式，如单例设计模式、模板方法模式、装饰模式、代理模式、工厂模式、观察者模式等。
+熟悉图片的三级缓存，能够在项目中熟练使用。
+熟悉Android下多线程断点下载。
+熟悉Android下的Jni开发流程，并能够在项目中使用NDK本地开发工具集调用c/cpp代码。
+熟悉Android的事件分发机制，能处理项目中的各种事件分发问题。
+熟悉SQLite数据库，能熟练使用SQL语句或API完成对数据库的CRUD操作。
+熟悉Android消息推送机制，能够借助三方平台实现消息推送，短信验证。
+熟练完成三方sdk的接入，Oauth2.0认证。
+熟练使用AysncTask、xUtils、Volley、Picasso等优秀开源框架。
+
+
+
+项目经验
+  XXX下载模块

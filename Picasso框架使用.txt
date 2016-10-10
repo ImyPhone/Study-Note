@@ -1,0 +1,13 @@
+在Android开发中，常需要从远程获取图片并显示在客户端，
+当然我们可以使用原生HttpUrlConnection和AsyncTask等操作来完成，
+但并不推荐，因为这样不仅需要我们编写大量的代码，还需要处理缓存和下载管理等，
+最好自己封装成库或者采用第三方库
+
+Picasso强大的图片下载和缓存的第三方库
+	一行代码搞定Picasso.with(context).load(imageUrl).into(imageView);
+	自动将图像缓存在本地
+    通过图片压缩转换以减少内存消耗
+    自动处理了ImageView的回收，即自动取消不在视野范围内的ImageView视图资源的加载；
+	
+	图像格式转换：很多时候需要将图片进行格式转换或者剪裁以节省内存或者达到我们的布局效果：
+	剪裁大小：Picasso.with(context).load(imageUrl).resize(50,50).centerCrop().into(imageView);
