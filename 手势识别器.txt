@@ -1,0 +1,51 @@
+①new GestureDetector(activity, new SimpleOnGestureListener())并创建SimpleOnGestureListener，复写onFling方法进行识别操作
+②注册手势识别器
+
+
+public abstract class BaseGDActivity extends Activity {  
+    private GestureDetector gestureDetector;  
+    @Override  
+    protected void onCreate(Bundle savedInstanceState) {  
+        // TODO Auto-generated method stub  
+        super.onCreate(savedInstanceState);  
+        gestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {  
+            //velocityX表示滑动速度  
+            @Override  
+            public boolean onFling(MotionEvent e1, MotionEvent e2,  
+                    float velocityX, float velocityY) {  
+                //避免倾斜滑动  
+                if(Math.abs(e1.getRawY()-e2.getRawY()) > 100){  
+                    //Toast.makeText(context, text, duration)  
+                    return true;  
+                }  
+                //避免滑动速度过慢  
+                if(Math.abs(velocityX) < 200){  
+                    return true;  
+                }  
+                if((e1.getRawX() - e2.getRawX()) > 200){  
+                    turnNext();//滑动到下一页  
+                    return true;  
+                }else if((e2.getRawX() - e1.getRawX()) > 200){  
+                    turnPre();//滑动到上一页  
+                    return true;  
+                }  
+                  
+                return super.onFling(e1, e2, velocityX, velocityY);  
+            }  
+  
+        });  
+    }  
+      
+     /**  
+      * 接收touch event     
+      */  
+     @Override  
+    public boolean onTouchEvent(MotionEvent event) {  
+        return gestureDetector.onTouchEvent(event);       
+    }   
+       
+    public abstract void turnNext();   
+      
+    public abstract void turnPre();   
+      
+}  

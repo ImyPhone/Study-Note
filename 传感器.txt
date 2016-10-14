@@ -1,0 +1,49 @@
+Android设备传感器学习（一） (2012-12-21 16:16:55)转载▼
+标签： 365 android于振北 于振北 it 	分类： Android
+一、传感器的分类
+
+分为三大类：1、动作传感器 2、位置传感器 3、环境传感器
+
+1、动作传感器：跟手机的动作有关
+
+加速度传感器（ TYPE_ACCELEROMETER） 三轴加速度感应器 返回三个坐标轴的加速度  单位m/s2
+
+重力传感器（TYPE_GRAVITY） 
+
+陀螺仪（TYPE_GYROSCOPE） 手机的姿态 游戏中用的较多 可判断方向 返回三个坐标轴上的角度 
+
+等……
+
+2、位置传感器
+
+方向传感器（TYPE_ORIENTATIO）
+
+磁场传感器（TYPE_MAGNETIC_FIELD）有夹角 返回三个坐标轴的数值  微特斯拉 
+
+距离传感器 （TYPE_PROXIMITY）
+
+3、环境传感器
+
+温度传感器（ TYPE_TEMPERATURE） 单位 摄氏度
+
+压力传感器 （TYPE_PRESSURE）单位 千帕斯卡
+
+亮度传感器 （）根外界的光线的强弱有关手机亮度随之变化
+
+翻转传感器 （TYPE_ROTATION_VECTOR）
+
+
+等……
+
+
+二、Android设备传感器的特点
+
+三、获取手机当中说有的传感器的名称
+
+四、使用传感器的方法
+
+1、获取SensorManager对象，对整个传感器进行管理
+
+2、执行SensorManager对象的getDefaultSensor(Sensor.TYPE_XXX)方法获取Sensor对象
+
+3、获取Sensor对象的各种属性

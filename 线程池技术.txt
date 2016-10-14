@@ -1,0 +1,122 @@
+##线程池的作用
+>* 线程池是预先创建线程的一种技术。线程池在还没有任务到来之前，创建一定数量的线程，放入空闲队列中，然后对这些资源进行复用。`减少频繁的创建和销毁对象。`
+>* 频繁创建和销毁线程耗资源,耗时间
+>* 因为有的线程执行时间比创建和销毁一个线程的时间还长
+
+###任务提交给线程池之后的处理策略_比喻
+>假如有一个工厂，工厂里面有10(`corePoolSize`)个工人，每个工人同时只能做一件任务。
+>因此只要当10个工人中有工人是空闲的，`来了任务就分配`给空闲的工人做；
+>当10个工人都有任务在做时，如果还来了任务，就把任务进行排队等待(`任务队列`)；
+>如果说新任务数目增长的速度远远大于工人做任务的速度，那么此时工厂主管可能会想补救措施，比如重新招4个临时工人(`创建新线程`)进来；然后就将任务也分配给这4个临时工人做；
+>如果说着14个工人做任务的速度还是不够，此时工厂主管可能就要考虑不再接收新的任务或者抛弃前面的一些任务了(`拒绝执行`)。
+>当这14个工人当中有人空闲时，而且空闲超过一定时间(`空闲时间`),新任务增长的速度又比较缓慢，工厂主管可能就考虑辞掉4个临时工了，只保持原来的10个工人，毕竟请额外的工人是要花钱的
+
+
+常见的四种线程池
+## Executors
+> Executors:jdk1.5之后的一个新类,`提供了一些静态工厂，生成一些常用的线程池`,ThreadPoolExecutor是Executors类的底层实现
+eg:    Executors.newFixedThreadPool()
+1.newSingleThreadExecutor
+>创建一个单线程的线程池。这个线程池只有一个线程在工作，也就是相当于单线程串行执行>所有任务。如果这个唯一的线程因为异常结束，那么会有一个新的线程来替代它。此线程池>保证所有任务的执行顺序按照任务的提交顺序执行。
+
+2.newFixedThreadPool
+>创建固定大小的线程池。每次提交一个任务就创建一个线程，直到线程达到线程池的最大大小。线程池的大小一旦达到最大值就会保持不变，如果某个线程因为执行异常而结束，那么线程池会补充一个新线程。
+
+3.newCachedThreadPool
+>创建一个可缓存的线程池。如果线程池的大小超过了处理任务所需要的线程，
+>那么就会回收部分空闲（60秒不执行任务）的线程，当任务数增加时，此线程池又可以智能的添加新线程来处理任务。此线程池不会对线程池大小做限制，线程池大小完全依赖于操作系统（或者说JVM）能够创建的最大线程大小。
+
+4.newScheduledThreadPool
+>创建
+
+
+
+
+自己创建线程池
+永远只存在一个普通线程池代理人对象，这个代理人提供执行、提交、移除任务的方法
+但是真正去执行任务的都不是代理人，而是真正的线程池mExecutor = new ThreadPoolExecutor
+而且mExecutor也只存在一个
+
+public class ThreadPoolFactory {
+	static ThreadPoolProxy	mNormalPool;
+	static ThreadPoolProxy	mDownLoadPool;
+
+	/**得到一个普通的线程池*/
+	public static ThreadPoolProxy getNormalPool() {
+		if (mNormalPool == null) {
+			synchronized (ThreadPoolProxy.class) {
+				if (mNormalPool == null) {
+					mNormalPool = new ThreadPoolProxy(5, 5, 3000);
+				}
+			}
+		}
+		return mNormalPool;
+	}
+	/**得到一个下载的线程池*/
+	public static ThreadPoolProxy getDownLoadPool() {
+		if (mDownLoadPool == null) {
+			synchronized (ThreadPoolProxy.class) {
+				if (mDownLoadPool == null) {
+					mDownLoadPool = new ThreadPoolProxy(3, 3, 3000);
+				}
+			}
+		}
+		return mDownLoadPool;
+	}
+}
+
+
+public class ThreadPoolProxy {
+	ThreadPoolExecutor	mExecutor;			// 只需创建一次
+	int					mCorePoolSize;
+	int					mMaximumPoolSize;
+	long				mKeepAliveTime;
+
+	public ThreadPoolProxy(int corePoolSize, int maximumPoolSize, long keepAliveTime) {
+		super();
+		mCorePoolSize = corePoolSize;
+		mMaximumPoolSize = maximumPoolSize;
+		mKeepAliveTime = keepAliveTime;
+	}
+
+	private ThreadPoolExecutor initThreadPoolExecutor() {//双重检查加锁
+		if (mExecutor == null) {
+			synchronized (ThreadPoolProxy.class) {
+				if (mExecutor == null) {
+					TimeUnit unit = TimeUnit.MILLISECONDS;
+					BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>();// 无界队列
+					ThreadFactory threadFactory = Executors.defaultThreadFactory();
+					RejectedExecutionHandler handler = new ThreadPoolExecutor.AbortPolicy();// 丢弃任务并抛出RejectedExecutionException异常。
+					mExecutor = new ThreadPoolExecutor(//
+							mCorePoolSize,// 核心的线程数
+							mMaximumPoolSize,// 最大的线程数
+							mKeepAliveTime, // 保持时间
+							unit, // 保持时间对应的单位
+							workQueue,// 缓存队列/阻塞队列
+							threadFactory, // 线程工厂
+							handler// 异常捕获器
+					);
+				}
+			}
+		}
+		return mExecutor;
+	}
+
+	/**执行任务*/
+	public void execute(Runnable task) {
+		initThreadPoolExecutor();
+		mExecutor.execute(task);
+	}
+
+	/**提交任务*/
+	public Future<?> submit(Runnable task) {
+		initThreadPoolExecutor();
+		return mExecutor.submit(task);
+	}
+
+	/**移除任务*/
+	public void removeTask(Runnable task) {
+		initThreadPoolExecutor();
+		mExecutor.remove(task);
+	}
+}
