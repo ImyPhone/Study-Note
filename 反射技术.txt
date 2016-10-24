@@ -1,0 +1,90 @@
+每个class都有一个相应的Class对象，编译完成后，生成的.class文件就表示class 对象，用来表示这个类的类型信息。获得Class实例的三中方式：
+
+利用对象调用getClass()方法获取该对象的Class实例
+使用Class的静态方法forName()，用类的名字获取一个Class实例
+运用.calss的方式获取Class实例，对基本数据类型的封装类，还可以采用.TYPE来获取对应的基本数据类型的Class实例
+
+类名.class, class.forName(), getClass()区别
+1:Class cl=A.class;  
+JVM将使用类A的类装载器, 将类A装入内存(前提是:类A还没有装入内存),不对类A做类的初始化工作.返回类A的Class的对象。
+
+2：Class.forName("类名");
+装入类A,并做类的初始化
+
+3：Class cl=对象引用o.getClass();
+返回引用o运行时真正所指的对象(因为:子对象的引用可能会赋给父对象的引用变量中)所属的类的Class的对象。
+
+.getClass()是动态的，其余是静态的。
+
+.class和class.forName()只能返回类内field的默认值，getClass可以返回当前对象中field的最新值
+
+Class.forName() 返回的是一个类,.newInstance() 后才创建一个对象，Class.forName()的作用是要求JVM查找并加载指定的类，也就是说JVM会执行该类的
+
+
+public class Person {
+    private String name = "Alfira";
+    public void getName() {
+        System.out.println(name);
+    }
+    public void setName(String name, int a) {
+        this.name = name + a;
+    }
+}
+
+public class Test {
+
+    public static void main(String[] args) {
+        show("yerasel.Person");
+    }
+
+    private static void show(String name) {
+        try {
+            // JVM将使用类A的类装载器,将类A装入内存(前提是:类A还没有装入内存),不对类A做类的初始化工作
+            Class classtype3 = Person.class;
+            // 获得classtype中的方法
+            Method getMethod3 = classtype3.getMethod("getName", new Class[] {});
+            Class[] parameterTypes3 = { String.class, int.class };
+            Method setMethod3 = classtype3
+                    .getMethod("setName", parameterTypes3);
+
+            // 实例化对象，因为这一句才会输出“静态初始化”以及“初始化”
+            Object obj3 = classtype3.newInstance();
+            // 通过实例化后的对象调用方法
+            getMethod3.invoke(obj3); // 获取默认值
+            setMethod3.invoke(obj3, "Setting new ", 3); // 设置
+            getMethod3.invoke(obj3); // 获取最新
+            System.out.println("----------------");
+
+            // 返回运行时真正所指的对象
+            Person p = new Person();
+            Class classtype = p.getClass();// Class.forName(name);
+            // 获得classtype中的方法
+            Method getMethod = classtype.getMethod("getName", new Class[] {});
+            Class[] parameterTypes = { String.class, int.class };
+            Method setMethod = classtype.getMethod("setName", parameterTypes);
+            getMethod.invoke(p);// 获取默认值
+            setMethod.invoke(p, "Setting new ", 1); // 设置
+            getMethod.invoke(p);// 获取最新
+            System.out.println("----------------");
+
+            // 装入类,并做类的初始化
+            Class classtype2 = Class.forName(name);
+            // 获得classtype中的方法
+            Method getMethod2 = classtype2.getMethod("getName", new Class[] {});
+            Class[] parameterTypes2 = { String.class, int.class };
+            Method setMethod2 = classtype2
+                    .getMethod("setName", parameterTypes2);
+            // 实例化对象
+            Object obj2 = classtype2.newInstance();
+            // 通过实例化后的对象调用方法
+            getMethod2.invoke(obj2); // 获取默认值
+            setMethod2.invoke(obj2, "Setting new ", 2); // 设置
+            getMethod2.invoke(obj2); // 获取最新
+
+            System.out.println("----------------");
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+}

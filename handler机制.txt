@@ -1,0 +1,33 @@
+Handler、Looper、MessageQuene之间的关系。
+每一个线程最多有一个Looper、一个Looper里边含有一个MessageQuene。
+Handler每次将消息发送到MessageQuene中，Looper用过一个死循环不断的从MessageQuene中获取消息，
+获取后，根据Message的target分发给对应的Handler进行处理。
+
+子线程创建handler
+方法一：prepare和loop一下
+new Thread(new Runnable() {  
+            public void run() {  
+                Looper.prepare();  
+                Handler handler = new Handler(){  
+                    @Override  
+                    public void handleMessage(Message msg) {  
+                        Toast.makeText(getApplicationContext(), "handler msg", Toast.LENGTH_LONG).show();  
+                    }  
+                };  
+                handler.sendEmptyMessage(1);  
+                Looper.loop();  
+            };  
+        }).start();
+		
+方法二：
+new Thread(new Runnable() {  
+            public void run() {  
+                Handler handler = new Handler(Looper.getMainLooper()){ // 区别在这！！！！  
+                    @Override  
+                    public void handleMessage(Message msg) {  
+                        Toast.makeText(getApplicationContext(), "handler msg", Toast.LENGTH_LONG).show();  
+                    }  
+                };  
+                handler.sendEmptyMessage(1);  
+            };  
+        }).start(); 
