@@ -1,0 +1,115 @@
+public class Book {  
+    private String name;  
+    private String author;  
+    private String price;  
+    public String getName() {  
+        return name;  
+    }  
+    public void setName(String name) {  
+        this.name = name;  
+    }  
+    public String getAuthor() {  
+        return author;  
+    }  
+    public void setAuthor(String author) {  
+        this.author = author;  
+    }  
+    public String getPrice() {  
+        return price;  
+    }  
+    public void setPrice(String price) {  
+        this.price = price;  
+    }       
+} 
+
+
+public class SAXparse {  
+ 
+    public static void main(String[] args) throws ParserConfigurationException,  
+            SAXException, IOException {  
+        // 创建解析工厂  
+        SAXParserFactory factory = SAXParserFactory.newInstance();  
+        // 创建解析器  
+        SAXParser parser = factory.newSAXParser();  
+        // 得到读取器  
+        XMLReader reader = parser.getXMLReader();  
+        // 设置内容处理器  
+        BeanListHandler handler = new BeanListHandler();  
+        reader.setContentHandler(handler);  
+        // 读取xml文档  
+        reader.parse("src/books.xml");  
+        ArrayList list = handler.getBooks();  
+        Book book;  
+        for(int i = 0; i < list.size(); i++) {  
+            book = new Book();  //这句代码有个卵用啊?!
+            book = (Book) list.get(i);  
+            System.out.println(book.getName() + book.getAuthor() + book.getPrice());  
+        }   
+    }    
+} 
+
+<?xml version="1.0" encoding="UTF-8"?>  
+<书架>  
+   <书>  
+        <书名>海的女儿</书名>  
+        <作者>安徒生</作者>  
+        <售价>50.0元</售价>  
+   </书>  
+   <书>  
+        <书名>卖火柴的小女孩</书名>  
+        <作者>安徒生</作者>  
+        <售价>28.0元</售价>  
+   </书>  
+</书架> 
+  
+class BeanListHandler extends DefaultHandler {  
+    //将读取的内容存放到一个book对象中，存放到list集合中  
+    ArrayList<Book> list = new ArrayList<Book>();  
+    private String currentTag;  
+    private Book book;  
+            
+    public void startElement(String uri, String localName, String qName,  
+            Attributes attributes) throws SAXException {  
+        currentTag = qName;    //注意：每当解析到一个新节点，元素名就赋给currentTag
+        if("书".equals(currentTag)) {  
+            book = new Book();  
+        }  
+    }        
+    public void characters(char[] ch, int start, int length)  
+            throws SAXException {  
+        if("书名".equals(currentTag)) {  
+            String name = new String(ch,start,length);  
+            book.setName(name);  
+        }  
+        if("作者".equals(currentTag)) {  
+            String author = new String(ch,start,length);  
+            book.setAuthor(author);  
+        }  
+        if("售价".equals(currentTag)) {  
+            String price = new String(ch,start,length);  
+            book.setPrice(price);  
+        }  
+    }     
+    public void endElement(String uri, String localName, String qName)  
+            throws SAXException {  
+        if("书".equals(qName)) {  
+            list.add(book);  
+            book = null;  
+        }  
+        currentTag = null;     //这个特别特别的重要
+    }        
+    public ArrayList<Book> getBooks() {  
+        return list;  
+    }  
+}  
+
+Sax解析是按顺序解析的，节点与节点之间的空格也会解析到（characters）
+注意currentTag的赋值，在所有startElement方法赋值currentTag = qName，在所有endElement方法置为空currentTag = null
+如果endElement方法中没有代码currentTag = null，那么currentTag还是原来的tag,但是解析出来的值确实空（节点与节点之间的空格也会被characters解析）
+
+
+startDocument()方法只会在文档开始解析的时候被调用，每次解析只会调用一次。
+startElement()方法每次在开始解析一个元素，即遇到元素标签开始的时候都会调用。
+characters()方法也是在每次解析到元素标签携带的内容时都会调用，即使该元素标签的内容为空或换行。而且如果元素内嵌套元素，在父元素结束标签前， characters()方法会再次被调用，此处需要注意。
+endElement()方法每次在结束解析一个元素，即遇到元素标签结束的时候都会调用。
+endDocument() startDocument()方法只会在文档解析结束的时候被调用，每次解析只会调用一次。

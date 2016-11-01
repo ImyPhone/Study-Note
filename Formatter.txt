@@ -1,0 +1,20 @@
+private String getTime(int timeMs) {
+	int totalSeconds = timeMs / 1000;// 获取文件有多少秒
+	
+	StringBuilder mFormatBuilder = new StringBuilder();
+	
+	Formatter mFormatter = new Formatter(mFormatBuilder,
+			Locale.getDefault());     //Locale.getDefault(),获得此 Java 虚拟机实例的当前默认语言环境值
+			
+	int seconds = totalSeconds % 60;
+	int minutes = (totalSeconds / 60) % 60;
+	int hours = totalSeconds / 3600;
+	mFormatBuilder.setLength(0);
+
+	if (hours > 0) {
+		return mFormatter.format("%d:%02d:%02d", hours, minutes, seconds)
+				.toString();// 格式化字符串
+	} else {
+		return mFormatter.format("%02d:%02d", minutes, seconds).toString();
+	}
+}
