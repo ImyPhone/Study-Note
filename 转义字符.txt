@@ -1,0 +1,13 @@
+转义字符：通过\来转变后面一个字母或者符号的含义
+\r:换行  System.out.println("hello \nworld");  输出结果为两行
+\b:退格
+\r:按下回车键 相当于backspace键
+\t:制表符 相当于Tab键 System.out.println("hello \tworld")
+
+打印一个带双引号的hello 
+错误示范：System.out.println(""hello"");
+正确示范：System.out.println("\"hello"\");---------->"hello"
+          System.out.println("\\hello\\");---------->\hello\
+
+Lunix系统换行用\n
+windows系统回车符由\r\n

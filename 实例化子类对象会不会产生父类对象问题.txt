@@ -1,0 +1,8 @@
+假如父类A中有个int a = 1;
+子类B继承A,同时B中覆盖个int a = 2;
+
+运行:
+A test = new B();
+system.out.println(test.a);
+
+结果是1
