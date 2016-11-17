@@ -1,0 +1,87 @@
+利用反射原理调用ITelephony的隐藏方法实现电话拦截
+
+第一步：在程序中新建一个包，包名必须为：com.android.internal.telephony，因为要使用aidl。
+
+第二步：在这个包里面新建一个名为ITelephony.aidl的文件，然后在文件里面写入代码：
+package com.android.internal.telephony;  
+
+    interface ITelephony{  
+        boolean endCall();  
+        void answerRingingCall();  
+    }  
+
+	
+然后是要监听电话状态，当来电时，检测来电号码是否符合拦截标准（这个拦截标准是我们自己定的，你可以拦截指定号码如实现一个黑名单的功能，
+我们在这里拦截所有不在联系人里的号码，并把此号码存入文件，以方便在首页显示），代码如下：
+ 
+  
+public class PhoneStatReceiver extends BroadcastReceiver{  
+  
+    String TAG = "tag";  
+    TelephonyManager telMgr;  
+    @Override  
+    public void onReceive(Context context, Intent intent) {  
+        telMgr = (TelephonyManager) context.getSystemService(Service.TELEPHONY_SERVICE);  
+        switch (telMgr.getCallState()) {  
+            case TelephonyManager.CALL_STATE_RINGING:  
+                String number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);   
+                Log.v(TAG,"number:"+number);  
+                if (!getPhoneNum(context).contains(number)) {  
+                    SharedPreferences phonenumSP = context.getSharedPreferences("in_phone_num", Context.MODE_PRIVATE);  
+                    Editor editor = phonenumSP.edit();  
+                    editor.putString(number,number);  
+                    editor.commit();  
+                    endCall();  
+                }  
+                break;  
+            case TelephonyManager.CALL_STATE_OFFHOOK:                                 
+                break;  
+            case TelephonyManager.CALL_STATE_IDLE:                                 
+                break;  
+        }  
+          
+    }  
+    /** 
+     * 挂断电话 
+     */  
+    private void endCall()  
+    {  
+        Class<TelephonyManager> c = TelephonyManager.class;           
+        try  
+        {  
+            Method getITelephonyMethod = c.getDeclaredMethod("getITelephony", (Class[]) null);  
+            getITelephonyMethod.setAccessible(true);  
+            ITelephony iTelephony = null;   
+            iTelephony = (ITelephony) getITelephonyMethod.invoke(telMgr, (Object[]) null);  
+            iTelephony.endCall();  
+        }  
+        catch (Exception e)  
+        {  
+            Log.e(TAG, "Fail to answer ring call.", e);  
+        }          
+    }  
+    private ArrayList<String>  getPhoneNum(Context context) {  
+        ArrayList<String> numList = new ArrayList<String>();  
+        //得到ContentResolver对象     
+        ContentResolver cr = context.getContentResolver();       
+        //取得电话本中开始一项的光标     
+        Cursor cursor = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);     
+        while (cursor.moveToNext())     
+        {                 
+            // 取得联系人ID     
+            String contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));     
+            Cursor phone = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,  
+                    ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + contactId, null, null);     
+            // 取得电话号码(可能存在多个号码)     
+            while (phone.moveToNext())     
+            {     
+                String strPhoneNumber = phone.getString(phone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));     
+                numList.add(strPhoneNumber);    
+                Log.v("tag","strPhoneNumber:"+strPhoneNumber);  
+            }                 
+            phone.close();     
+        }     
+        cursor.close();  
+        return numList;  
+    }  
+}  
